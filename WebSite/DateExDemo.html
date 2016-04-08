@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title></title>
+	<meta charset="utf-8" />
+    <script src="js/DateEx.js"></script>
+    <style>
+        b { display:inline-block;width:150px }
+    </style>
+</head>
+<body>
+
+    <script>
+        var t = new Date();
+        var demos = [
+            "标准|yyyy-MM-dd HH:mm:ss.fff",
+            "标准|yyyy-MM-dd TThh:mm:ss.fff",
+            "自定义|yyyy年MM月dd日 HH时mm分ss秒fff毫秒",
+            "时区|zzz",
+            "英文时段|tt",
+            "英文时段-简写|t",
+            "中文时段|TT",
+            "中文时段-简写|T",
+            "英文月份|MMMM",
+            "英文月份-简写|MMM",
+            "中文月份|MMMMM月",
+            "英文星期|dddd",
+            "英文星期-简写|ddd",
+            "中文星期|DDDD",
+            "中文星期-简写|DDD",
+        ];
+
+        for (var i in demos) {
+            var s = demos[i].split("|");
+            document.write("<b>" + s[0] + "</b>:&nbsp;");
+            document.write('new Date().toString("' + s[1] + '");&nbsp;&nbsp;<font color="green">//');
+            document.write(t.toString(s[1]));
+            document.write("</font><br />");
+        }
+    </script>
+</body>
+</html>
