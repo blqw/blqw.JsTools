@@ -1,7 +1,6 @@
-(function (window) {
-    if (name in window)
-    {
-      throw new Error(["already ", name, " in windows"].join(""))
+(function (window, name) {
+    if (name in window) {
+        throw new Error(["already ", name, " in windows"].join(""));
     }
     var Url = function (url) {
         //在字符串中查找指定的字符,如果不存在返回字符串的 def
@@ -132,6 +131,8 @@
         return params;
     };
 
-    "define" in window && (window.define(name, [], function () { return Url; }) || window.define(function () { return Url; }));
     window[name] = Url;
+    if (typeof window.define === "function") {
+        window.define(name, [], function () { return Url; }) || window.define(function () { return Url; });
+    }
 })(window, "Url");
