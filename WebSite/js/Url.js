@@ -176,7 +176,7 @@
                                 + " " + ("0" + value.getHours()).slice(-2)
                                 + "%3A" + ("0" + value.getMinutes()).slice(-2)
                                 + "%3A" + ("0" + value.getSeconds()).slice(-2);
-                        } else if (name === "") {
+                        } else {
                             arguments.callee(value.toString(), name);
                         }
                     }
