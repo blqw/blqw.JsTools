@@ -8,8 +8,6 @@
         throw new Error(["already '", name, "' in 'window'"].join(""));
     }
 
-    var token = new Object();
-
     function trim(str) {
         switch (typeof str) {
             case "undefined": return "";
@@ -47,9 +45,13 @@
         if (search.charAt(0) === "?") {
             search = search.substr(1);
         }
-        if (search === "") return {};
-        var args = search.match(/[?]?[^=&]+=[^=&]+/g);
         var params = {};
+        if (search.charAt(0) === "&") {
+            params[""] = "";
+            search = search.substr(1);
+        }
+        if (search === "") return params;
+        var args = search.match(/[?]?[^=&]+=[^=&]+/g);
         if (args == null) return params;
         for (var j = 0; j < args.length; j++) {
             try {
@@ -97,7 +99,7 @@
                 if (object == null) {
                     return null;
                 }
-                return object[this.name]
+                return object[this.name];
             }
             this.set = function (value) {
                 var object = this.ref.get();
@@ -134,7 +136,11 @@
                     arr.push(name + "=" + value);
                     break;
                 case "string":
-                    arr.push(name + "=" + encodeURIComponent(value));
+                    if (name == null || name === "") {
+                        arr.push(encodeURIComponent(value));
+                    } else {
+                        arr.push(name + "=" + encodeURIComponent(value));
+                    }
                     break;
                 case "number":
                     arr.push(name + "=" + value);
@@ -151,10 +157,17 @@
                         if (keys.length > 0) {
                             for (var index = 0; index < keys.length; index++) {
                                 var key = encodeURIComponent(keys[index]);
+                                if (key == null) {
+                                    key = "";
+                                }
                                 if (name.length != 0) {
                                     key = name + "%5B" + key + "%5D";
                                 }
-                                arguments.callee(value[keys[index]] || "", key);
+                                var val = value[keys[index]];
+                                if (val == null) {
+                                    val = "";
+                                }
+                                arguments.callee(val, key);
                             }
                         } else if (value instanceof Date) {
                             var date = value.getFullYear()
@@ -175,6 +188,8 @@
         })(params, "");
         return arr.join("&");
     }
+
+    var token = new Object();
 
     function Url(url) {
         if (arguments[1] !== token) {
@@ -199,7 +214,7 @@
             }
             _path = url.substr(0, findIndex(url, ["?", "#"])).replace(/[?#]$/g, "");
             url = url.substr(_path.length);
-            _path = backtrack(_path.replace(/(\\|\/)+/g, "/"));
+            _path = _path.replace(/(\\|\/)+/g, "/");
             _query = url.substr(0, findIndex(url, ["#"]));
             url = url.substr(_query.length);
             _anchor = url;
@@ -237,15 +252,21 @@
                     }
                 },
                 path: {
-                    get: function () { return _path; },
+                    get: function () {
+                        var path = _path;
+                        if (_scheme == null || _scheme === "" || _domain == null || _domain !== "") {
+                            return path;
+                        }
+                        path = backtrack(path);
+                        if (path.charAt(0) !== "/") {
+                            path = "/" + path;
+                        }
+                        return path;
+                    },
                     set: function (value) {
                         value = trim(value);
                         if (/^\/?(([^\/?#]+)(\/|$))+$/.test(value) === false) {
                             error("path", value);
-                        }
-                        value = backtrack(value);
-                        if (value.charAt(0) !== "/") {
-                            value = "/" + value
                         }
                         _path = value;
                     }
@@ -274,7 +295,14 @@
 
 
         this.toString = function () {
-            return [this.scheme, this.domain, this.path, this.query, this.anchor].join("");
+            var path = this.path;
+            if (_scheme == null || _scheme === "" || _domain == null || _domain !== "") {
+                path = backtrack(path);
+                if (path.charAt(0) !== "/") {
+                    path = "/" + path;
+                }
+            }
+            return [this.scheme, this.domain, path, this.query, this.anchor === "#" ? "" : this.anchor].join("");
         };
     }
 
@@ -293,10 +321,7 @@
         }
 
         if (u2.path != null && u2.path.length > 0) {
-            if (u2.path.charAt(0) === ".") {
-
-            }
-            else if (u2.path.charAt(0) === "/") {
+            if (u2.path.charAt(0) === "/") {
                 u1.path = u2.path;
             }
             else if (u2.path.substr(0, 2) === "./") {
@@ -338,7 +363,16 @@
     }
 
     Url.encoded = urlencoded;
-    Url.combine = combine;
+    Url.combine = function (url1, url2) {
+        if (arguments.length < 2) {
+            return arguments[0];
+        }
+        var _base = url1;
+        for (var i = 1; i < arguments.length; i++) {
+            _base = combine(_base, arguments[i]).toString();
+        }
+        return _base;
+    };
     Url.parseSearch = parseSearch;
     window[name] = Url;
     if (typeof window.define === "function") {
