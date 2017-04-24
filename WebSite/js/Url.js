@@ -1,6 +1,6 @@
 /* 
  * date:    2017.04.24
- * version: v1.0.2.0
+ * version: v1.0.3.0
  * author:  blqw
  */
 (function (window, name) {
@@ -10,12 +10,12 @@
 
     function trim(str) {
         switch (typeof str) {
-        case "undefined": return "";
-        case "boolean": return str ? "true" : "";
-        case "string": return str.replace(/^\s+|\s+$/g, "");
-        case "number": return str.toString();
-        case "object": return trim(str || "");
-        case "function": return trim(str());
+            case "undefined": return "";
+            case "boolean": return str ? "true" : "";
+            case "string": return str.replace(/^\s+|\s+$/g, "");
+            case "number": return str.toString();
+            case "object": return trim(str || "");
+            case "function": return trim(str());
         }
     }
 
@@ -130,60 +130,60 @@
         (function (value, name) {
 
             switch (typeof value) {
-            case "undefined":
-                break;
-            case "boolean":
-                arr.push(name + "=" + value);
-                break;
-            case "string":
-                if (name == null || name === "") {
-                    arr.push(encodeURIComponent(value));
-                } else {
-                    arr.push(name + "=" + encodeURIComponent(value));
-                }
-                break;
-            case "number":
-                arr.push(name + "=" + value);
-                break;
-            case "object":
-                if (value instanceof Array) {
-                    for (var index = 0; index < value.length; index++) {
-                        arguments.callee(value[index] || "", name.length > 0 ? name + "%5B" + (index || "") + "%5D" : "");
-                    }
-                    return;
-                }
-                if (value !== null) {
-                    var keys = Object.keys(value);
-                    if (keys.length > 0) {
-                        for (var index = 0; index < keys.length; index++) {
-                            var key = encodeURIComponent(keys[index]);
-                            if (key == null) {
-                                key = "";
-                            }
-                            if (name.length != 0) {
-                                key = name + "%5B" + key + "%5D";
-                            }
-                            var val = value[keys[index]];
-                            if (val == null) {
-                                val = "";
-                            }
-                            arguments.callee(val, key);
-                        }
-                    } else if (value instanceof Date) {
-                        var date = value.getFullYear()
-                            + "-" + ("0" + (date.getMonth() + 1)).slice(-2)
-                            + "-" + ("0" + value.getDate()).slice(-2)
-                            + " " + ("0" + value.getHours()).slice(-2)
-                            + "%3A" + ("0" + value.getMinutes()).slice(-2)
-                            + "%3A" + ("0" + value.getSeconds()).slice(-2);
+                case "undefined":
+                    break;
+                case "boolean":
+                    arr.push(name + "=" + value);
+                    break;
+                case "string":
+                    if (name == null || name === "") {
+                        arr.push(encodeURIComponent(value));
                     } else {
-                        arguments.callee(value.toString(), name);
+                        arr.push(name + "=" + encodeURIComponent(value));
                     }
-                }
-                break;
-            case "function":
-                arguments.callee(value(), name);
-                break;
+                    break;
+                case "number":
+                    arr.push(name + "=" + value);
+                    break;
+                case "object":
+                    if (value instanceof Array) {
+                        for (var index = 0; index < value.length; index++) {
+                            arguments.callee(value[index] || "", name.length > 0 ? name + "%5B" + (index || "") + "%5D" : "");
+                        }
+                        return;
+                    }
+                    if (value !== null) {
+                        var keys = Object.keys(value);
+                        if (keys.length > 0) {
+                            for (var index = 0; index < keys.length; index++) {
+                                var key = encodeURIComponent(keys[index]);
+                                if (key == null) {
+                                    key = "";
+                                }
+                                if (name.length != 0) {
+                                    key = name + "%5B" + key + "%5D";
+                                }
+                                var val = value[keys[index]];
+                                if (val == null) {
+                                    val = "";
+                                }
+                                arguments.callee(val, key);
+                            }
+                        } else if (value instanceof Date) {
+                            var date = value.getFullYear()
+                                + "-" + ("0" + (date.getMonth() + 1)).slice(-2)
+                                + "-" + ("0" + value.getDate()).slice(-2)
+                                + " " + ("0" + value.getHours()).slice(-2)
+                                + "%3A" + ("0" + value.getMinutes()).slice(-2)
+                                + "%3A" + ("0" + value.getSeconds()).slice(-2);
+                        } else {
+                            arguments.callee(value.toString(), name);
+                        }
+                    }
+                    break;
+                case "function":
+                    arguments.callee(value(), name);
+                    break;
             }
         })(params, "");
         return arr.join("&");
@@ -267,7 +267,7 @@
                         return path;
                     },
                     set: function (value) {
-                        value = trim(value);
+                        value = trim(value).replace(/([^\/]|^)[\/]{2,}/g, function (m) { return m.charAt(0) === ":" ? "://" : m.charAt(0) + "/"; });
                         if (/^\/?(([^\/?#]+)(\/|$))+$/.test(value) === false) {
                             error("path", value);
                         }
@@ -316,12 +316,15 @@
         if (url2 == null || url2.length === 0) {
             return new Url(url1).toString();
         }
+        if (/^\.\.[^/]/.test(url2)) {
+            url2 = "./" + url2;
+        }
         var u1 = new Url(url1);
         var u2 = new Url(url2);
 
-        if (u2.scheme != null) {            
-            if(u2.scheme === "//" && u1.scheme != null){
-              u2.scheme = u1.scheme;
+        if (u2.scheme != null) {
+            if (u2.scheme === "//" && u1.scheme != null) {
+                u2.scheme = u1.scheme;
             }
             return u2.toString();
         }
@@ -335,7 +338,7 @@
             }
             else if (u1.path.slice(-1) === "/") {
                 u1.path = [u1.path, u2.path].join("");
-            } else {
+            } else if (u2.path.charAt(0) !== ".") {
                 u1.path = [u1.path.substr(0, u1.path.lastIndexOf("/")), "/", u2.path].join("");
             }
         }
