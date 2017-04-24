@@ -1,6 +1,6 @@
 /* 
- * date:    2017.04.17
- * version: v1.0.0.0
+ * date:    2017.04.24
+ * version: v1.0.1.0
  * author:  blqw
  */
 (function (window, name) {
@@ -10,12 +10,12 @@
 
     function trim(str) {
         switch (typeof str) {
-            case "undefined": return "";
-            case "boolean": return str ? "true" : "";
-            case "string": return str.replace(/^\s+|\s+$/g, "");
-            case "number": return str.toString();
-            case "object": return trim(str || "");
-            case "function": return trim(str());
+        case "undefined": return "";
+        case "boolean": return str ? "true" : "";
+        case "string": return str.replace(/^\s+|\s+$/g, "");
+        case "number": return str.toString();
+        case "object": return trim(str || "");
+        case "function": return trim(str());
         }
     }
 
@@ -130,60 +130,60 @@
         (function (value, name) {
 
             switch (typeof value) {
-                case "undefined":
-                    break;
-                case "boolean":
-                    arr.push(name + "=" + value);
-                    break;
-                case "string":
-                    if (name == null || name === "") {
-                        arr.push(encodeURIComponent(value));
-                    } else {
-                        arr.push(name + "=" + encodeURIComponent(value));
+            case "undefined":
+                break;
+            case "boolean":
+                arr.push(name + "=" + value);
+                break;
+            case "string":
+                if (name == null || name === "") {
+                    arr.push(encodeURIComponent(value));
+                } else {
+                    arr.push(name + "=" + encodeURIComponent(value));
+                }
+                break;
+            case "number":
+                arr.push(name + "=" + value);
+                break;
+            case "object":
+                if (value instanceof Array) {
+                    for (var index = 0; index < value.length; index++) {
+                        arguments.callee(value[index] || "", name.length > 0 ? name + "%5B" + (index || "") + "%5D" : "");
                     }
-                    break;
-                case "number":
-                    arr.push(name + "=" + value);
-                    break;
-                case "object":
-                    if (value instanceof Array) {
-                        for (var index = 0; index < value.length; index++) {
-                            arguments.callee(value[index] || "", name.length > 0 ? name + "%5B" + (index || "") + "%5D" : "");
-                        }
-                        return;
-                    }
-                    if (value !== null) {
-                        var keys = Object.keys(value);
-                        if (keys.length > 0) {
-                            for (var index = 0; index < keys.length; index++) {
-                                var key = encodeURIComponent(keys[index]);
-                                if (key == null) {
-                                    key = "";
-                                }
-                                if (name.length != 0) {
-                                    key = name + "%5B" + key + "%5D";
-                                }
-                                var val = value[keys[index]];
-                                if (val == null) {
-                                    val = "";
-                                }
-                                arguments.callee(val, key);
+                    return;
+                }
+                if (value !== null) {
+                    var keys = Object.keys(value);
+                    if (keys.length > 0) {
+                        for (var index = 0; index < keys.length; index++) {
+                            var key = encodeURIComponent(keys[index]);
+                            if (key == null) {
+                                key = "";
                             }
-                        } else if (value instanceof Date) {
-                            var date = value.getFullYear()
-                                + "-" + ("0" + (date.getMonth() + 1)).slice(-2)
-                                + "-" + ("0" + value.getDate()).slice(-2)
-                                + " " + ("0" + value.getHours()).slice(-2)
-                                + "%3A" + ("0" + value.getMinutes()).slice(-2)
-                                + "%3A" + ("0" + value.getSeconds()).slice(-2);
-                        } else {
-                            arguments.callee(value.toString(), name);
+                            if (name.length != 0) {
+                                key = name + "%5B" + key + "%5D";
+                            }
+                            var val = value[keys[index]];
+                            if (val == null) {
+                                val = "";
+                            }
+                            arguments.callee(val, key);
                         }
+                    } else if (value instanceof Date) {
+                        var date = value.getFullYear()
+                            + "-" + ("0" + (date.getMonth() + 1)).slice(-2)
+                            + "-" + ("0" + value.getDate()).slice(-2)
+                            + " " + ("0" + value.getHours()).slice(-2)
+                            + "%3A" + ("0" + value.getMinutes()).slice(-2)
+                            + "%3A" + ("0" + value.getSeconds()).slice(-2);
+                    } else {
+                        arguments.callee(value.toString(), name);
                     }
-                    break;
-                case "function":
-                    arguments.callee(value(), name);
-                    break;
+                }
+                break;
+            case "function":
+                arguments.callee(value(), name);
+                break;
             }
         })(params, "");
         return arr.join("&");
@@ -210,6 +210,9 @@
                 _scheme = scheme[0];
                 url = url.substr(_scheme.length);
                 _domain = url.substr(0, findIndex(url, ["/", "\\", "?", "#"])).replace(/[\/\\]$/g, "");
+                if (_domain.indexOf(".") == -1) {
+                    throw new Error('The "url" argument is invalid. because "domian" doesn\'t exist. from string : "' + arguments[0] + '"');
+                }
                 url = url.substr(_domain.length);
             }
             _path = url.substr(0, findIndex(url, ["?", "#"])).replace(/[?#]$/g, "");
