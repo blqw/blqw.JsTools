@@ -1,6 +1,6 @@
 /* 
  * date:    2017.04.24
- * version: v1.0.1.0
+ * version: v1.0.2.0
  * author:  blqw
  */
 (function (window, name) {
@@ -319,7 +319,10 @@
         var u1 = new Url(url1);
         var u2 = new Url(url2);
 
-        if (u2.scheme != null) {
+        if (u2.scheme != null) {            
+            if(u2.scheme === "//" && u1.scheme != null){
+              u2.scheme = u1.scheme;
+            }
             return u2.toString();
         }
 
