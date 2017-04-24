@@ -1,7 +1,7 @@
 # blqw.JsTools
 Js常用用户模块
 
-### 间处理 DateFormat.js
+### 时间处理 DateFormat.js
 [Demo](http://jsrun.net/axkKp/edit)  
 [源码](https://github.com/blqw/blqw.JsTools/blob/master/WebSite/js/DateFormat.js)  
   
