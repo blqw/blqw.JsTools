@@ -1,13 +1,14 @@
 /* 
- * date:    2017.04.24
- * version: v1.0.3.0
+ * date:    2017.05.19
+ * version: v1.0.4.0
  * author:  blqw
  */
 (function (window, name) {
+    var version = "1.0.4.0";
     if (name in window) {
         throw new Error(["already '", name, "' in 'window'"].join(""));
     }
-
+    
     function trim(str) {
         switch (typeof str) {
             case "undefined": return "";
@@ -210,7 +211,7 @@
                 _scheme = scheme[0];
                 url = url.substr(_scheme.length);
                 _domain = url.substr(0, findIndex(url, ["/", "\\", "?", "#"])).replace(/[\/\\]$/g, "");
-                if (_domain.indexOf(".") == -1) {
+                if (/^[a-zA-Z0-9:]+$/.test(_domain) === false) {
                     throw new Error('The "url" argument is invalid. because "domian" doesn\'t exist. from string : "' + arguments[0] + '"');
                 }
                 url = url.substr(_domain.length);
@@ -245,7 +246,7 @@
                     get: function () { return _domain; },
                     set: function (value) {
                         value = trim(value);
-                        if (/^([a-z0-9]([a-z0-9\-]+[a-z0-9])?\.)+[a-z0-9]+\/?$/.test(value) === false) {
+                        if (/^[a-zA-Z0-9:]+$/.test(value) === false) {
                             error("domain", value);
                         }
                         if (value.slice(-1) === "/") {
@@ -387,4 +388,5 @@
     if (typeof window.define === "function") {
         window.define(name, [], function () { return Url; });
     }
+    Url.version = version;
 })(window, "Url");
