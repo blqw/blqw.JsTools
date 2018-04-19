@@ -36,15 +36,15 @@
 
     function eventBus() {
         var handers = {}
-        this.on = function (eventName, fnOrData, fn) {
+        this.on = function (eventName, fn, data) {
             eventName = str(eventName);
             if (eventName == null) {
                 throw new Error("事件名无效");
             }
             if (!isFunc(fn)) {
                 var temp = fn;
-                fn = fnOrData;
-                fnOrData = temp;
+                fn = data;
+                data = temp;
             }
             if (!isFunc(fn)) {
                 throw new Error("必须提供事件函数");
@@ -54,7 +54,7 @@
                 handle = new handler(eventName);
                 handers[eventName] = handle;
             }
-            handle.add(fn, fnOrData);
+            handle.add(fn, data);
         }
         this.off = function (eventName, fn) {
             eventName = str(eventName);
@@ -71,14 +71,14 @@
             }
         }
         this.fire = this.emit = this.trigger =
-            function (eventName, sender, data) {
+            function (eventName, sender, args) {
                 eventName = str(eventName);
                 if (eventName == null) {
                     return;
                 }
                 var handle = handers[eventName];
                 if (handle != null) {
-                    handle.invoke(sender, data);
+                    handle.invoke(sender, args);
                 }
             }
         var bus = this;
@@ -95,6 +95,6 @@
     }
     var instance = new eventBus();
     instance.bindTo(eventBus);
-    eventBus.version = "2018.04.18"
+    eventBus.version = "2018.04.19"
     exporter(eventBus);
 })(function (c) { window.eventBus = c; })

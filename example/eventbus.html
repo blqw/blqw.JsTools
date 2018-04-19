@@ -11,8 +11,8 @@
 
 <body>
     <pre>
-function data_completed(sender, data, obj) {
-    document.querySelector("textarea").value += JSON.stringify({ sender, data, sign: obj.sign }) + '\n';
+function data_completed(sender, args, obj) {
+    document.querySelector("textarea").value += JSON.stringify({ sender, args, sign: data.sign }) + '\n';
 }
 //绑定事件
 eventBus.on("data_completed", data_completed, { sign: "F6243749AFF04C0581E1DD178A0B737A" })
@@ -22,8 +22,8 @@ eventBus.off("data_completed", data_completed)
 eventBus.emit("data_completed", window, null)
     </pre>
     <script>
-        function data_completed(button, data, obj) {
-            document.querySelector("textarea").value += JSON.stringify({ button: button.innerText, data, sign: obj.sign }) + '\n';
+        function data_completed(button, args, data) {
+            document.querySelector("textarea").value += JSON.stringify({ button: button.innerText, args, sign: data.sign }) + '\n';
         }
         eventBus.on("data_completed", function(){ var a = null;a.toString(); }, { sign: "F6243749AFF04C0581E1DD178A0B737A" })
     </script>
