@@ -8,7 +8,7 @@
         return s.length > 0 ? s.toLowerCase() : null;
     }
 
-    function handler() {
+    function handler(eventName) {
         var fns = [];
         var datas = [];
         this.add = function (fn, data) {
@@ -27,6 +27,7 @@
                 try {
                     fn(sender, data, datas[i])
                 } catch (error) {
+                    console.error(eventName + "事件出现异常异常: " + fn.toString());
                     console.error(error);
                 }
             });
@@ -50,7 +51,7 @@
             }
             var handle = handers[eventName];
             if (handle == null) {
-                handle = new handler();
+                handle = new handler(eventName);
                 handers[eventName] = handle;
             }
             handle.add(fn, fnOrData);

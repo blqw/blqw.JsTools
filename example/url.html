@@ -10,6 +10,27 @@
 </head>
 
 <body>
+    <pre>
+var url = new Url("http://baidu.com:8888/a/b?id=1&name=blqw#abc");
+<script>
+    function padRight(str, length) {
+        var space = "                                                            ";
+        return (str + space).substr(0, length);
+    }
+    var url = new Url("http://baidu.com:8888/a/b?id=1&name=blqw#abc");
+    for (const key in url) {
+        if (url.hasOwnProperty(key)) {
+            if (typeof url[key] === "function") {
+                document.writeln([padRight( "url." + key + "()",14), url[key]()].join("  =  "));
+            } else {
+                document.writeln([padRight("url." + key,14), JSON.stringify(url[key])].join("  =  "));
+            }
+        }
+    }
+</script>
+    </pre>
+
+
     <pre><script>
         var urls = [
             "http://baidu.com/a/b", "c/d",
@@ -24,18 +45,17 @@
             "http://baidu.com/a/b", "/////c//////d",
             "http://baidu.com/a/b?id=1#abc", "c/d?name=blqw",
             "http://baidu.com/a/b?id=1#abc", "c/d?&name=blqw#def",
-            "http://baidu.com/a/b?id=1#abc", "..?id=2#"
+            "http://baidu.com/a/b?id=1#abc", "..?id=2#",
+            "http://::1/a/b?id=1#abc", "..?id=2#"
         ];
-        function padRight(str, length) {
-            var space = "                                                            ";
-            return (str + space).substr(0, length);
-        }
+        document.writeln("var result = Url.combine(url1, url2)");
+        document.writeln([padRight("url1", 30), padRight("url2", 20), "result"].join("  |  "));
         for (var i = 0; i < urls.length; i += 2) {
             try {
                 var url = Url.combine(urls[i], urls[i + 1]);
                 document.writeln([padRight(urls[i], 30), padRight(urls[i + 1], 20), url].join("  |  "));
             } catch (e) {
-                document.writeln([padRight(urls[i], 30), padRight(urls[i + 1], 20), "error:" + e.message].join("  |  "));
+                document.writeln([padRight(urls[i], 30), padRight(urls[i + 1], 20), "error:" + e.toString()].join("  |  "));
             }
 
         }

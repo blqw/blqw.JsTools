@@ -1,6 +1,6 @@
 /* 
- * date:    2017.05.19
- * version: v1.0.4.0
+ * date:    2018.04.19
+ * version: v1.0.5.0
  * author:  blqw
  */
 (function (exporter) {
@@ -192,6 +192,7 @@
         if (arguments[1] !== token) {
             return new Url(url, token);
         }
+        var me = this;
         url = str(url || window.location.href);
 
         var _scheme = null; // http://
@@ -200,97 +201,108 @@
         var _query = null; // ?id=1
         var _anchor = null; // #abc
 
+        var error = function (name, value) {
+            throw new Error('The "' + name + '" format is invalid. from string : "' + value + '"');
+        }
+
+        var prop = {
+            scheme: {
+                get: function () { return _scheme; },
+                set: function (value) {
+                    value = str(value);
+                    if (/^([a-z]+:)?\/\/$/.test(value) === false) {
+                        error("scheme", value);
+                    }
+                    _scheme = value;
+                },
+                configurable: false,
+                enumerable: true,
+            },
+            domain: {
+                get: function () { return _domain; },
+                set: function (value) {
+                    value = str(value);
+                    if (/^[a-zA-Z0-9:\.]+$/.test(value) === false) {
+                        error("domain", value);
+                    }
+                    if (value.slice(-1) === "/") {
+                        value = value.slice(0, -1);
+                    }
+                    _domain = value;
+                },
+                configurable: false,
+                enumerable: true,
+            },
+            path: {
+                get: function () {
+                    var path = _path;
+                    if (_scheme == null || _scheme === "" || _domain == null || _domain !== "") {
+                        return path;
+                    }
+                    path = backtrack(path);
+                    if (path.charAt(0) !== "/") {
+                        path = "/" + path;
+                    }
+                    return path;
+                },
+                set: function (value) {
+                    value = str(value).replace(/([^\/]|^)[\/]{2,}/g, function (m) { return m.charAt(0) === ":" ? "://" : m.charAt(0) + "/"; });
+                    if (/^\/?(([^\/?#]+)(\/|$))+$/.test(value) === false) {
+                        error("path", value);
+                    }
+                    _path = value;
+                },
+                configurable: false,
+                enumerable: true,
+            },
+            query: {
+                get: function () {
+                    var str = urlencoded(me.params);
+                    return (str === "") ? "" : "?" + str;
+                },
+                set: function (value) {
+                    _query = value;
+                    me.params = parseSearch(value);
+                },
+                configurable: false,
+                enumerable: true,
+            },
+            anchor: {
+                get: function () { return (_anchor === "" || _anchor.charAt(0) === "#") ? _anchor : "#" + _anchor; },
+                set: function (value) { _anchor = str(value); },
+                configurable: false,
+                enumerable: true,
+            }
+        };
+
+
         if (url.length > 0) {
 
             var scheme = /^([^:/]+:\/\/|\/\/)/.exec(url) || "";
             if (scheme && scheme.length > 0) {
-                _scheme = scheme[0];
+                prop.scheme.set(scheme[0]);
                 url = url.substr(_scheme.length);
-                _domain = url.substr(0, findIndex(url, ["/", "\\", "?", "#"])).replace(/[\/\\]$/g, "");
-                if (/^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+(:[\d]{1,5})?$/.test(_domain) === false) {
-                    throw new Error('The "url" argument is invalid. because "domian" doesn\'t exist. from string : "' + arguments[0] + '"');
-                }
+                prop.domain.set(url.substr(0, findIndex(url, ["/", "\\", "?", "#"])).replace(/[\/\\]$/g, ""));
                 url = url.substr(_domain.length);
             }
-            _path = url.substr(0, findIndex(url, ["?", "#"])).replace(/[?#]$/g, "");
+            prop.path.set(url.substr(0, findIndex(url, ["?", "#"])).replace(/[?#]$/g, ""));
             url = url.substr(_path.length);
-            _path = _path.replace(/(\\|\/)+/g, "/");
-            _query = url.substr(0, findIndex(url, ["#"]));
+            prop.path.set(_path.replace(/(\\|\/)+/g, "/"))
+            prop.query.set(url.substr(0, findIndex(url, ["#"])));
             url = url.substr(_query.length);
-            _anchor = url;
+            prop.anchor.set(url);
         }
 
-        this.params = parseSearch(_query);
-        var me = this;
 
         if (typeof Object.defineProperties === "function") {
-            var error = function (name, value) {
-                throw new Error('The "' + name + '" format is invalid. from string : "' + value + '"');
-            }
-            Object.defineProperties(this, {
-                scheme: {
-                    get: function () { return _scheme; },
-                    set: function (value) {
-                        value = str(value);
-                        if (/^([a-z]+:)?\/\/$/.test(value) === false) {
-                            error("scheme", value);
-                        }
-                        _scheme = value;
-                    }
-                },
-                domain: {
-                    get: function () { return _domain; },
-                    set: function (value) {
-                        value = str(value);
-                        if (/^[a-zA-Z0-9:]+$/.test(value) === false) {
-                            error("domain", value);
-                        }
-                        if (value.slice(-1) === "/") {
-                            value = value.slice(0, -1);
-                        }
-                        _domain = value;
-                    }
-                },
-                path: {
-                    get: function () {
-                        var path = _path;
-                        if (_scheme == null || _scheme === "" || _domain == null || _domain !== "") {
-                            return path;
-                        }
-                        path = backtrack(path);
-                        if (path.charAt(0) !== "/") {
-                            path = "/" + path;
-                        }
-                        return path;
-                    },
-                    set: function (value) {
-                        value = str(value).replace(/([^\/]|^)[\/]{2,}/g, function (m) { return m.charAt(0) === ":" ? "://" : m.charAt(0) + "/"; });
-                        if (/^\/?(([^\/?#]+)(\/|$))+$/.test(value) === false) {
-                            error("path", value);
-                        }
-                        _path = value;
-                    }
-                },
-                query: {
-                    get: function () {
-                        var str = urlencoded(me.params);
-                        return (str === "") ? "" : "?" + str;
-                    },
-                    set: function (value) {
-                        me.params = parseSearch(value);
-                    }
-                },
-                anchor: {
-                    get: function () { return (_anchor === "" || _anchor.charAt(0) === "#") ? _anchor : "#" + _anchor; },
-                    set: function (value) { _anchor = str(value); }
-                }
-            });
+            Object.defineProperties(this,prop);
         } else {
             this.scheme = _scheme;
             this.domain = _domain;
             this.path = _path;
             this.query = _query;
             this.anchor = _anchor;
+            this.params = parseSearch(_query);
         }
 
 

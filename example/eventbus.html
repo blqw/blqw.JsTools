@@ -25,6 +25,7 @@ eventBus.emit("data_completed", window, null)
         function data_completed(button, data, obj) {
             document.querySelector("textarea").value += JSON.stringify({ button: button.innerText, data, sign: obj.sign }) + '\n';
         }
+        eventBus.on("data_completed", function(){ var a = null;a.toString(); }, { sign: "F6243749AFF04C0581E1DD178A0B737A" })
     </script>
     <button onclick='eventBus.on("data_completed", data_completed, { sign: "F6243749AFF04C0581E1DD178A0B737A" })'>绑定事件</button>
     <button onclick='eventBus.off("data_completed", data_completed)'>解绑事件</button>
