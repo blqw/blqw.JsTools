@@ -23,7 +23,7 @@
             }
         }
         this.invoke = function (sender, data) {
-            fns.forEach((fn, i) => {
+            fns.forEach(function (fn, i) {
                 try {
                     fn(sender, data, datas[i])
                 } catch (error) {
@@ -82,11 +82,11 @@
                 }
             }
         var bus = this;
-        this.bindTo = function(obj){
-            if(obj == null){
+        this.bindTo = function (obj) {
+            if (obj == null) {
                 throw new Error("obj is null");
             }
-            for (const key in bus) {
+            for (var key in bus) {
                 if (bus.hasOwnProperty(key) && key !== "bindTo") {
                     obj[key] = bus[key];
                 }
@@ -97,4 +97,4 @@
     instance.bindTo(eventBus);
     eventBus.version = "2018.04.18"
     exporter(eventBus);
-})(c => window.eventBus = c)
+})(function (c) { window.eventBus = c; })
