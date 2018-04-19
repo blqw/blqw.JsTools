@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>eventbus demo</title>
+    <script src="../src/eventbus.js"></script>
+</head>
+
+<body>
+    <pre>
+function data_completed(sender, data, obj) {
+    document.querySelector("textarea").value += JSON.stringify({ sender, data, sign: obj.sign }) + '\n';
+}
+//绑定事件
+eventBus.on("data_completed", data_completed, { sign: "F6243749AFF04C0581E1DD178A0B737A" })
+//解绑事件
+eventBus.off("data_completed", data_completed)
+//触发事件
+eventBus.emit("data_completed", window, null)
+    </pre>
+    <script>
+        function data_completed(button, data, obj) {
+            document.querySelector("textarea").value += JSON.stringify({ button: button.innerText, data, sign: obj.sign }) + '\n';
+        }
+    </script>
+    <button onclick='eventBus.on("data_completed", data_completed, { sign: "F6243749AFF04C0581E1DD178A0B737A" })'>绑定事件</button>
+    <button onclick='eventBus.off("data_completed", data_completed)'>解绑事件</button>
+    <button onclick='eventBus.emit("data_completed", this, null)'>触发事件</button>
+    <br/>
+    <textarea cols="100" rows="10"></textarea>
+</body>
+
+</html>

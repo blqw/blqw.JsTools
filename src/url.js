@@ -3,20 +3,16 @@
  * version: v1.0.4.0
  * author:  blqw
  */
-(function (window, name) {
-    var version = "1.0.4.0";
-    if (name in window) {
-        throw new Error(["already '", name, "' in 'window'"].join(""));
-    }
-    
-    function trim(str) {
-        switch (typeof str) {
+(function (exporter) {
+
+    function str(s) {
+        switch (typeof s) {
             case "undefined": return "";
-            case "boolean": return str ? "true" : "";
-            case "string": return str.replace(/^\s+|\s+$/g, "");
-            case "number": return str.toString();
-            case "object": return trim(str || "");
-            case "function": return trim(str());
+            case "boolean": return s ? "true" : "";
+            case "string": return s.replace(/^\s+|\s+$/g, "");
+            case "number": return s.toString();
+            case "object": return str(s || "");
+            case "function": return str(s());
         }
     }
 
@@ -42,7 +38,7 @@
         if (/^[^#][^?#]*[?#]/.test(search)) {
             throw new Error('Argument format is invalid. from string : "' + search + '"');
         }
-        search = trim(search);
+        search = str(search);
         if (search.charAt(0) === "?") {
             search = search.substr(1);
         }
@@ -196,7 +192,7 @@
         if (arguments[1] !== token) {
             return new Url(url, token);
         }
-        url = trim(url || window.location.href);
+        url = str(url || window.location.href);
 
         var _scheme = null; // http://
         var _domain = null; // baidu.com
@@ -211,7 +207,7 @@
                 _scheme = scheme[0];
                 url = url.substr(_scheme.length);
                 _domain = url.substr(0, findIndex(url, ["/", "\\", "?", "#"])).replace(/[\/\\]$/g, "");
-                if (/^[a-zA-Z0-9:]+$/.test(_domain) === false) {
+                if (/^[a-zA-Z0-9]+(\.[a-zA-Z0-9]+)+(:[\d]{1,5})?$/.test(_domain) === false) {
                     throw new Error('The "url" argument is invalid. because "domian" doesn\'t exist. from string : "' + arguments[0] + '"');
                 }
                 url = url.substr(_domain.length);
@@ -235,7 +231,7 @@
                 scheme: {
                     get: function () { return _scheme; },
                     set: function (value) {
-                        value = trim(value);
+                        value = str(value);
                         if (/^([a-z]+:)?\/\/$/.test(value) === false) {
                             error("scheme", value);
                         }
@@ -245,7 +241,7 @@
                 domain: {
                     get: function () { return _domain; },
                     set: function (value) {
-                        value = trim(value);
+                        value = str(value);
                         if (/^[a-zA-Z0-9:]+$/.test(value) === false) {
                             error("domain", value);
                         }
@@ -268,7 +264,7 @@
                         return path;
                     },
                     set: function (value) {
-                        value = trim(value).replace(/([^\/]|^)[\/]{2,}/g, function (m) { return m.charAt(0) === ":" ? "://" : m.charAt(0) + "/"; });
+                        value = str(value).replace(/([^\/]|^)[\/]{2,}/g, function (m) { return m.charAt(0) === ":" ? "://" : m.charAt(0) + "/"; });
                         if (/^\/?(([^\/?#]+)(\/|$))+$/.test(value) === false) {
                             error("path", value);
                         }
@@ -286,7 +282,7 @@
                 },
                 anchor: {
                     get: function () { return (_anchor === "" || _anchor.charAt(0) === "#") ? _anchor : "#" + _anchor; },
-                    set: function (value) { _anchor = trim(value); }
+                    set: function (value) { _anchor = str(value); }
                 }
             });
         } else {
@@ -384,9 +380,6 @@
         return _base;
     };
     Url.parseSearch = parseSearch;
-    window[name] = Url;
-    if (typeof window.define === "function") {
-        window.define(name, [], function () { return Url; });
-    }
-    Url.version = version;
-})(window, "Url");
+    Url.version = "1.0.4.0";
+    exporter(Url);
+})(c => window.Url = c);

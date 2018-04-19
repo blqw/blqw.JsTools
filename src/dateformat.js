@@ -3,7 +3,7 @@
  * version: v1.0.0.0
  * author:  blqw
  */
-(function(window){
+(function(){
     var ___DateToString = Date.prototype.toString;
     Date.prototype.toString = function (format) {
         if (format === undefined) {
@@ -24,8 +24,7 @@
 
         var weekNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         var cnWeekNames = ["一", "二", "三", "四", "五", "六", "日"];
-        var monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-                            'August', 'September', 'October', 'November', 'December'];
+        var monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         var cnMonthNames = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二"];
 
         var formats = [
@@ -125,4 +124,4 @@
     Date.prototype.addMonths = function (value) { return this.add("M", value); };
     Date.prototype.addSeconds = function (value) { return this.add("s", value); };
     Date.prototype.addYears = function (value) { return this.add("y", value); };
-})(window);
+})();

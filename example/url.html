@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>url demo</title>
+    <script src="../src/url.js"></script>
+</head>
+
+<body>
+    <pre><script>
+        var urls = [
+            "http://baidu.com/a/b", "c/d",
+            "http://baidu.com/a/b", "//c.com/d",
+            "http://baidu.com/a/b", "c/d",
+            "http://baidu.com/a/b/", "c/d",
+            "http://baidu.com/a/b", "/c/d",
+            "http://baidu.com/a/b", "../c/d",
+            "http://baidu.com/a/b", "./c/d",
+            "http://baidu.com/a/b", "../../../c/d",
+            "http://baidu.com/a/b", "c//////d",
+            "http://baidu.com/a/b", "/////c//////d",
+            "http://baidu.com/a/b?id=1#abc", "c/d?name=blqw",
+            "http://baidu.com/a/b?id=1#abc", "c/d?&name=blqw#def",
+            "http://baidu.com/a/b?id=1#abc", "..?id=2#"
+        ];
+        function padRight(str, length) {
+            var space = "                                                            ";
+            return (str + space).substr(0, length);
+        }
+        for (var i = 0; i < urls.length; i += 2) {
+            try {
+                var url = Url.combine(urls[i], urls[i + 1]);
+                document.writeln([padRight(urls[i], 30), padRight(urls[i + 1], 20), url].join("  |  "));
+            } catch (e) {
+                document.writeln([padRight(urls[i], 30), padRight(urls[i + 1], 20), "error:" + e.message].join("  |  "));
+            }
+
+        }
+    </script>
+    </pre>
+</body>
+
+</html>
